@@ -11,7 +11,7 @@ local function str_to_pos(str)
 end
 
 local function str_to_start(str)
-    return vim.fn.strutf16len(str)
+    return (vim.str_utfindex(str,"utf-16",string.len(str)))
 end
 
 local function make_request(buf,pos)
@@ -28,7 +28,7 @@ end
 local function handle_request(buf,data)
     vim.api.nvim_buf_set_lines(buf,0,-1,false,vim.split(data.text,"\n"))
     if vim.api.nvim_win_get_buf(0) == vim.api.nvim_buf_get_number(buf) then
-        local text = require("regex").match("^.{" .. data.selections[1].start .. "}")(data.text)
+        local text = string.sub(data.text,1,vim.str_byteindex(data.text,"utf-16",data.selections[1].start))
         vim.api.nvim_win_set_cursor(0,str_to_pos(text))
     end
 end
