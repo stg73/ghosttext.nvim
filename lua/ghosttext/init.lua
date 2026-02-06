@@ -14,7 +14,7 @@ local function str_to_start(str)
     return vim.fn.strutf16len(str)
 end
 
-function M.make_request(buf,pos)
+local function make_request(buf,pos)
     local text = table.concat(vim.api.nvim_buf_get_lines(buf,0,-1,false),"\n")
     local start = str_to_start(table.concat(vim.api.nvim_buf_get_text(buf,0,0,pos[1] - 1,pos[2] + 1,{}),"\n"))
     return {
@@ -25,7 +25,7 @@ function M.make_request(buf,pos)
     }
 end
 
-function M.handle_request(buf,data)
+local function handle_request(buf,data)
     vim.api.nvim_buf_set_lines(buf,0,-1,false,vim.split(data.text,"\n"))
     if vim.api.nvim_win_get_buf(0) == vim.api.nvim_buf_get_number(buf) then
         local text = require("regex").match("^.{" .. data.selections[1].start .. "}")(data.text)
@@ -58,7 +58,7 @@ function M.start(port,buf)
         if ws_server.state.websocket_is_open then
             ws.wrap(vim.schedule_wrap(function(request)
                 ws_server.state.hoge = true
-                M.handle_request(buf,vim.json.decode(request))
+                handle_request(buf,vim.json.decode(request))
                 ws_server.state.hoge = false
             end))(data)
         else
@@ -71,7 +71,7 @@ function M.start(port,buf)
         on_lines = function()
             if ws_server.state.websocket_is_open and not ws_server.state.hoge then
                 ws_server.send(ws.wrap(function()
-                    local request = M.make_request(buf,vim.api.nvim_win_get_cursor(0))
+                    local request = make_request(buf,vim.api.nvim_win_get_cursor(0))
                     return vim.json.encode(request)
                 end)())
             end
