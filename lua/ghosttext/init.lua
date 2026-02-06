@@ -33,6 +33,24 @@ local function handle_request(buf,data)
     end
 end
 
+function M.start_http_server(opts)
+    local http_server = sock.server("127.0.0.1",opts.http)
+    http_server.on.data = function()
+        http_server.send(http.wrap(function()
+            return {
+                header = {
+                    ["content-type"] = "application/json",
+                },
+                body = vim.json.encode({
+                    WebSocketPort = opts.websocket,
+                    ProtocolVersion = 1,
+                }),
+            }
+        end)())
+        http_server.close()
+    end
+end
+
 function M.start(opts)
     opts = opts or {}
     local buf = opts.buf or (function()
@@ -43,21 +61,10 @@ function M.start(opts)
     local ws_port = opts.websocket or 4000
     local http_port = opts.http or 4001
 
-    local http_server = sock.server("127.0.0.1",http_port)
-    http_server.on.data = function()
-        http_server.send(http.wrap(function()
-            return {
-                header = {
-                    ["content-type"] = "application/json",
-                },
-                body = vim.json.encode({
-                    WebSocketPort = ws_port,
-                    ProtocolVersion = 1,
-                }),
-            }
-        end)())
-        http_server.close()
-    end
+    M.start_http_server({
+        http = http_port,
+        websocket = ws_port,
+    })
 
     local ws_server = sock.server("127.0.0.1",ws_port)
     ws_server.on.open = function()
