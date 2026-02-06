@@ -33,8 +33,17 @@ local function handle_request(buf,data)
     end
 end
 
-function M.start(port,buf)
-    http_server = sock.server("127.0.0.1",4001)
+function M.start(opts)
+    opts = opts or {}
+    local buf = opts.buf or (function()
+        local buf = vim.api.nvim_create_buf(false,true)
+        vim.api.nvim_buf_set_name(buf,"[ghosttext]")
+        return buf
+    end)()
+    local ws_port = opts.websocket or 4000
+    local http_port = opts.http or 4001
+
+    http_server = sock.server("127.0.0.1",http_port)
     http_server.on.data = function()
         http_server.send(http.wrap(function()
             return {
@@ -42,7 +51,7 @@ function M.start(port,buf)
                     ["content-type"] = "application/json",
                 },
                 body = vim.json.encode({
-                    WebSocketPort = port,
+                    WebSocketPort = ws_port,
                     ProtocolVersion = 1,
                 }),
             }
@@ -50,7 +59,7 @@ function M.start(port,buf)
         http_server.close()
     end
 
-    ws_server = sock.server("127.0.0.1",port)
+    ws_server = sock.server("127.0.0.1",ws_port)
     ws_server.on.open = function()
         ws_server.state.websocket_is_open = false
     end
