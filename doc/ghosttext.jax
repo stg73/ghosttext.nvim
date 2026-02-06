@@ -1,0 +1,37 @@
+*ghosttext.txt*                                                    *ghosttext*
+
+                                ghosttext docs
+
+                                                目次を見るには |gO| をタイプ。
+
+==============================================================================
+導入                                                         *ghosttext-intro*
+
+Neovimを GhostText のサーバとして使うためのモジュール。
+
+==============================================================================
+使い方                                                       *ghosttext-usage*
+
+以下を実行すると、HTTPサーバとWebSocketサーバが起動し、
+ブラウザから使える状態になる。
+>lua
+    require("ghosttext").start()
+<
+設定は `start()` に渡す。
+
+------------------------------------------------------------------------------
+関数                                                     *ghosttext-functions*
+
+start({opts})                                              *ghosttext.start()*
+    サーバを起動して、GhostTextが使えるようにする。
+
+    引数: ~
+      • {opts}  (`table?`) オプション 以下を含む:
+                • {buf}? (`integer`) テキストの編集に使うバッファ
+                  指定されなかった場合、バッファが作成されてそれが使われる。
+                • {http}? (`integer`, 既定: `4001`) HTTPサーバのポート
+                • {websocket}? (`integer`, 既定: `4000`) WebSocketサーバの
+                  ポート
+
+
+ vim:tw=78:ts=8:sw=4:sts=4:et:ft=help:norl:
