@@ -83,7 +83,9 @@ function M.start(opts)
     opts.http = opts.http or 4001
 
     local http_server_is_running = sock.can_connect("127.0.0.1",opts.http)
-    if not http_server_is_running then
+    if http_server_is_running then
+        M.request_focus(opts)
+    else
         M.start_http_server(opts)
     end
 
