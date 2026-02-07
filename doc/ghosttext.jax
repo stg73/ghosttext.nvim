@@ -30,8 +30,8 @@ start({opts})                                              *ghosttext.start()*
                 • {buf}? (`integer`) テキストの編集に使うバッファ
                   指定されなかった場合、バッファが作成されてそれが使われる。
                 • {http}? (`integer`, 既定: `4001`) HTTPサーバのポート
-                • {websocket}? (`integer`, 既定: `4000`) WebSocketサーバの
-                  ポート
+                • {websocket}? (`integer`, 既定: 空いているポート)
+                  WebSocketサーバのポート
 
 
  vim:tw=78:ts=8:sw=4:sts=4:et:ft=help:norl:
