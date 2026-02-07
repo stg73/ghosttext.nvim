@@ -66,30 +66,21 @@ function M.start(opts)
         websocket = ws_port,
     })
 
-    local ws_server = sock.server("127.0.0.1",ws_port)
-    ws_server.on.open = function()
-        ws_server.state.websocket_is_open = false
     end
-    ws_server.on.data = function(data)
-        if ws_server.state.websocket_is_open then
-            ws.wrap(vim.schedule_wrap(function(request)
-                ws_server.state.hoge = true
-                handle_request(buf,vim.json.decode(request))
-                ws_server.state.hoge = false
-            end))(data)
-        else
-            ws_server.send(http.wrap(ws.handshake)(data))
-            ws_server.state.websocket_is_open = true
-        end
-    end
+
+    local ws_server = require("socket.websocket").server(sock.server("127.0.0.1",opts.websocket))
+    local proccessing_request
+    ws_server.on.data = vim.schedule_wrap(function(request)
+        proccessing_request = true
+        handle_request(buf,vim.json.decode(request))
+        proccessing_request = false
+    end)
 
     vim.api.nvim_buf_attach(buf,true,{
         on_lines = function()
-            if ws_server.state.websocket_is_open and not ws_server.state.hoge then
-                ws_server.send(ws.wrap(function()
-                    local request = make_request(buf,vim.api.nvim_win_get_cursor(0))
-                    return vim.json.encode(request)
-                end)())
+            if not proccessing_request then
+                local request = make_request(buf,vim.api.nvim_win_get_cursor(0))
+                ws_server.send(vim.json.encode(request))
             end
         end
     })
