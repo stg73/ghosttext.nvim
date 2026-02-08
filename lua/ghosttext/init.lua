@@ -57,6 +57,25 @@ function M.start_http_server(opts)
     end
 end
 
+function M.start_websocket_server(opts)
+    local ws_server = require("socket.websocket").server(sock.server("127.0.0.1",opts.websocket))
+    local proccessing_request
+    ws_server.on.data = vim.schedule_wrap(function(request)
+        proccessing_request = true
+        handle_request(opts.buf,vim.json.decode(request))
+        proccessing_request = false
+    end)
+
+    vim.api.nvim_buf_attach(opts.buf,true,{
+        on_lines = function()
+            if not proccessing_request then
+                local request = make_request(opts.buf,vim.api.nvim_win_get_cursor(0))
+                ws_server.send(vim.json.encode(request))
+            end
+        end
+    })
+end
+
 function M.request_focus(opts)
     local client = sock.client("127.0.0.1",opts.http)
     client.on.open = function()
@@ -74,7 +93,7 @@ end
 
 function M.start(opts)
     opts = opts or {}
-    local buf = opts.buf or (function()
+    opts.buf = opts.buf or (function()
         local buf = vim.api.nvim_create_buf(false,true)
         vim.api.nvim_buf_set_name(buf,"[ghosttext]")
         return buf
@@ -82,29 +101,13 @@ function M.start(opts)
     opts.websocket = opts.websocket or sock.get_available_port()
     opts.http = opts.http or 4001
 
+    M.start_websocket_server(opts)
     local http_server_is_running = sock.can_connect("127.0.0.1",opts.http)
     if http_server_is_running then
         M.request_focus(opts)
     else
         M.start_http_server(opts)
     end
-
-    local ws_server = require("socket.websocket").server(sock.server("127.0.0.1",opts.websocket))
-    local proccessing_request
-    ws_server.on.data = vim.schedule_wrap(function(request)
-        proccessing_request = true
-        handle_request(buf,vim.json.decode(request))
-        proccessing_request = false
-    end)
-
-    vim.api.nvim_buf_attach(buf,true,{
-        on_lines = function()
-            if not proccessing_request then
-                local request = make_request(buf,vim.api.nvim_win_get_cursor(0))
-                ws_server.send(vim.json.encode(request))
-            end
-        end
-    })
 
     vim.api.nvim_create_autocmd("FocusGained",{
         group = vim.api.nvim_create_augroup("ghosttext",{}),
