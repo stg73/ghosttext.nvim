@@ -77,6 +77,12 @@ function M.start_websocket_server(opts)
 end
 
 function M.request_focus(opts)
+    local http_server_is_running = sock.can_connect("127.0.0.1",opts.http)
+    if not http_server_is_running then
+        M.start_http_server(opts)
+        return
+    end
+
     local client = sock.client("127.0.0.1",opts.http)
     client.on.open = function()
         client.send(http.wrap(function()
@@ -102,12 +108,7 @@ function M.start(opts)
     opts.http = opts.http or 4001
 
     M.start_websocket_server(opts)
-    local http_server_is_running = sock.can_connect("127.0.0.1",opts.http)
-    if http_server_is_running then
-        M.request_focus(opts)
-    else
-        M.start_http_server(opts)
-    end
+    M.request_focus(opts)
 
     vim.api.nvim_create_autocmd("FocusGained",{
         group = vim.api.nvim_create_augroup("ghosttext",{}),
