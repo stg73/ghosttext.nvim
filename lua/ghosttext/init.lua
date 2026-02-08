@@ -1,6 +1,6 @@
 local M = {}
 
-local ws = require("websocket")
+local ws = require("socket.websocket")
 local http = require("http")
 local sock = require("socket")
 
@@ -38,7 +38,7 @@ function M.start_http_server(opts)
     local websocket = opts.websocket
     http_server.on.data = function(data)
         local response = http.wrap(function(request)
-            if request.path and request.path ~= "/" then
+            if request.path ~= "/" then
                 websocket = tonumber((string.gsub(request.path,"/","")))
             end
 
@@ -58,7 +58,7 @@ function M.start_http_server(opts)
 end
 
 function M.start_websocket_server(opts)
-    local ws_server = require("socket.websocket").server(sock.server("127.0.0.1",opts.websocket))
+    local ws_server = ws.server(sock.server("127.0.0.1",opts.websocket))
     local proccessing_request
     ws_server.on.data = vim.schedule_wrap(function(request)
         proccessing_request = true
