@@ -61,8 +61,13 @@ function M.start_websocket_server(opts)
     local ws_server = ws.server(sock.server("127.0.0.1",opts.websocket))
     local proccessing_request
     ws_server.on.data = vim.schedule_wrap(function(request)
+        local data = vim.json.decode(request)
         proccessing_request = true
-        handle_request(opts.buf,vim.json.decode(request))
+        vim.api.nvim_exec_autocmds("User",{
+            group = "ghosttext.hook_data",
+            pattern = data.url,
+        })
+        handle_request(opts.buf,data)
         proccessing_request = false
     end)
 
@@ -114,6 +119,13 @@ function M.start(opts)
         group = vim.api.nvim_create_augroup("ghosttext",{}),
         callback = function()
             M.request_focus(opts)
+        end,
+    })
+
+    vim.api.nvim_create_autocmd("User",{
+        group = vim.api.nvim_create_augroup("ghosttext.hook_data",{}),
+        callback = function()
+            vim.api.nvim_set_current_buf(opts.buf)
         end,
     })
 end
