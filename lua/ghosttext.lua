@@ -33,8 +33,10 @@ local function handle_request(buf,data)
     end
 end
 
+local localhost = "127.0.0.1"
+
 function M.start_http_server(opts)
-    local http_server = sock.server("127.0.0.1",opts.http)
+    local http_server = sock.server(localhost,opts.http)
     local websocket = opts.websocket
     http_server.on.data = function(data)
         local response = http.wrap(function(request)
@@ -58,7 +60,7 @@ function M.start_http_server(opts)
 end
 
 function M.start_websocket_server(opts)
-    local ws_server = ws.server(sock.server("127.0.0.1",opts.websocket))
+    local ws_server = ws.server(sock.server(localhost,opts.websocket))
     local proccessing_request
     ws_server.on.data = vim.schedule_wrap(function(request)
         local data = vim.json.decode(request)
@@ -82,25 +84,27 @@ function M.start_websocket_server(opts)
 end
 
 function M.request_focus(opts)
-    local http_server_is_running = sock.can_connect("127.0.0.1",opts.http)
+    local http_server_is_running = sock.can_connect(localhost,opts.http)
     if not http_server_is_running then
         M.start_http_server(opts)
         return
     end
 
-    local client = sock.client("127.0.0.1",opts.http)
+    local client = sock.client(localhost,opts.http)
     client.on.open = function()
         client.send(http.wrap(function()
             return {
                 method = "GET",
                 path = "/" .. opts.websocket,
                 header = {
-                    host = "127.0.0.1:" .. opts.http,
+                    host = localhost .. ":" .. opts.http,
                 },
             }
         end)())
     end
 end
+
+local GHOSTTEXT_DEFAULT_PORT = 4001
 
 function M.start(opts)
     opts = opts or {}
@@ -110,7 +114,7 @@ function M.start(opts)
         return buf
     end)()
     opts.websocket = opts.websocket or sock.get_available_port()
-    opts.http = opts.http or 4001
+    opts.http = opts.http or GHOSTTEXT_DEFAULT_PORT
 
     M.start_websocket_server(opts)
     M.request_focus(opts)
