@@ -2,5 +2,6 @@ ghosttext	ghosttext.jax	/*ghosttext*
 ghosttext-functions	ghosttext.jax	/*ghosttext-functions*
 ghosttext-intro	ghosttext.jax	/*ghosttext-intro*
 ghosttext-usage	ghosttext.jax	/*ghosttext-usage*
+ghosttext.disconnect()	ghosttext.jax	/*ghosttext.disconnect()*
 ghosttext.start()	ghosttext.jax	/*ghosttext.start()*
 ghosttext.txt	ghosttext.jax	/*ghosttext.txt*

@@ -33,5 +33,8 @@ start({opts})                                              *ghosttext.start()*
                 • {websocket}? (`integer`, 既定: 空いているポート)
                   WebSocketサーバのポート
 
+disconnect()                                          *ghosttext.disconnect()*
+    ブラウザとの接続を切る。
+
 
  vim:tw=78:ts=8:sw=4:sts=4:et:ft=help:norl:

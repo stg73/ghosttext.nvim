@@ -59,8 +59,11 @@ function M._start_http_server(opts)
     end
 end
 
+M.disconnect = function() end
+
 function M._start_websocket_server(opts)
     local ws_server = ws.server(sock.server(localhost,opts.websocket))
+    M.disconnect = ws_server.close
     local proccessing_request
     ws_server.on.data = vim.schedule_wrap(function(request)
         local data = vim.json.decode(request)
