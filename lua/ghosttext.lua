@@ -95,15 +95,14 @@ function M._request_focus(opts)
 
     local client = sock.client(localhost,opts.http)
     client.on.open = function()
-        client.send(http.wrap(function()
-            return {
-                method = "GET",
-                path = "/" .. opts.websocket,
-                header = {
-                    host = localhost .. ":" .. opts.http,
-                },
-            }
-        end)())
+        local const = require("tbl").const
+        client.send(http.wrap(const({
+            method = "GET",
+            path = "/" .. opts.websocket,
+            header = {
+                host = localhost .. ":" .. opts.http,
+            },
+        }))())
     end
 end
 
