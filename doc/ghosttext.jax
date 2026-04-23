@@ -21,7 +21,7 @@ NeovimをGhostTextのサーバとして使うためのモジュール。
 >lua
     require("ghosttext").disconnect()
 <
-ブラウザからデータが送られてくるたび、 `ghosttext.hook_data` という
+ブラウザからデータが送られてくるたび、 `ghosttext.on_data` という
 |User| 自動コマンドを発火する。既定では、編集用のバッファに移動する自動コマンド
 が設定される。
 

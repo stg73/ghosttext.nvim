@@ -69,7 +69,7 @@ function M._start_websocket_server(opts)
         local data = vim.json.decode(request)
         proccessing_request = true
         vim.api.nvim_exec_autocmds("User",{
-            group = "ghosttext.hook_data",
+            group = "ghosttext.on_data",
             pattern = (function(x) -- patternが空文字列だとexecされないので、その場合はpatternを指定しない
                 if x ~= "" then
                     return x
@@ -133,7 +133,7 @@ function M.start(opts)
     })
 
     vim.api.nvim_create_autocmd("User",{
-        group = vim.api.nvim_create_augroup("ghosttext.hook_data",{}),
+        group = vim.api.nvim_create_augroup("ghosttext.on_data",{}),
         callback = function()
             vim.api.nvim_set_current_buf(opts.buf)
         end,
