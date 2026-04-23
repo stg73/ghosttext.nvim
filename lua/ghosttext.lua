@@ -70,7 +70,11 @@ function M._start_websocket_server(opts)
         proccessing_request = true
         vim.api.nvim_exec_autocmds("User",{
             group = "ghosttext.hook_data",
-            pattern = data.url,
+            pattern = (function(x) -- patternが空文字列だとexecされないので、その場合はpatternを指定しない
+                if x ~= "" then
+                    return x
+                end
+            end)(data.url),
         })
         handle_request(opts.buf,data)
         proccessing_request = false
