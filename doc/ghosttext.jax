@@ -35,7 +35,7 @@ start({opts})                                              *ghosttext.start()*
     引数: ~
       • {opts}  (`table?`) オプション 以下を含む:
                 • {buf}? (`integer`) テキストの編集に使うバッファ
-                  指定されなかった場合、バッファが作成されてそれが使われる。
+                  指定されない場合、バッファが作成されてそれが使われる。
                 • {http}? (`integer`, 既定: `4001`) HTTPサーバのポート
                 • {websocket}? (`integer`, 既定: 空いているポート)
                   WebSocketサーバのポート
